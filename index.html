@@ -1,98 +1,116 @@
 <!--
- * @Date: 2023-02-27 23:09:37
- * @LastEditors: Timothy
- * @LastEditTime: 2023-02-28 02:00:12
- * @Description: 
+ * @Date: 2024-12-23
+ * @LastEditors: cuijianzhuang
+ * @Description: 离线照片水印打码工具
 -->
 <!DOCTYPE html>
 <html>
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, minimum-scale=1" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <title>离线照片水印打码工具</title>
-    <style>
-        #container {
-            margin: 30px;
-        }
-
-        #graph {
-            display: grid;
-            grid-gap: 10px;
-            grid-template-columns: 1fr 1fr;
-        }
-
-        h1 {
-            margin: 0
-        }
-
-        p,
-        article {
-            margin: 0 0 20px 0
-        }
-
-        article {
-            font-size: 14px;
-            color: #777
-        }
-
-        .align-center-box {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        label {
-            color: blue;
-            font-size: 17px;
-            margin-right: 10px;
-        }
-
-        p label {
-            color: black;
-            display: inline-block;
-            width: 50px;
-            font-size: 15px
-        }
-
-        p {
-            font-size: 15px;
-            line-height: 30px
-        }
-
-        input#text {
-            width: 100%;
-            box-sizing: border-box;
-            font-size: 16px;
-            margin-bottom: 10px
-        }
-
-        input[type=range] {
-            width: 200px;
-            height: 18px;
-            vertical-align: text-bottom
-        }
-
-        canvas {
-            box-sizing: border-box;
-            width: 100%;
-            border: 1px dashed #AAA;
-            cursor: pointer
-        }
-    </style>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="./js/script.js" defer></script>
 </head>
+<button class="theme-switch" onclick="toggleTheme()">
+    <span class="theme-icon">🌞</span>
+    <span class="theme-text">切换主题</span>
+</button>
 <div id="container">
     <h1>离线照片水印打码工具</h1>
-    <article>安全地为你的图片加水印，无任何网络请求，利用浏览器api实现水印，特别适合各种敏感证件（身份证，驾照，护照等）。<a
-            href="https://github.com/jzsn2018/offline-photo-watermark">Github地址，求 star</a></article>
+    <article>安全地为你的图片加水印，无任何网络请求，利用浏览器api实现水印，特别适合各种敏感证（身份证，驾照，护照等）。<a
+            href="https://github.com/cuijianzhuang/photo-watermark">Github地址，求 star</a></article>
 
-    <div class="align-center-box">
-        <label for="image">第一步：先选择本地图片(可多选)</label>
-        <input type="file" id="image" autocomplete="off" multiple>
+    <div class="align-center-box upload-area">
+        <label>第一步：选择图片上传</label>
+        <div class="upload-container">
+            <div class="upload-box drag-area">
+                <input type="file" id="image" autocomplete="off" multiple>
+                <div class="upload-hint">
+                    <i class="upload-icon">📁</i>
+                    <p>点击或拖拽图片到此处上传</p>
+                    <p class="upload-tip">支持 jpg、jpeg、png、gif、webp、bmp、ico 格式</p>
+                </div>
+            </div>
+            <div id="uploadProgress" class="upload-progress" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-inner"></div>
+                </div>
+                <div class="progress-text">正在处理图片...</div>
+            </div>
+        </div>
     </div>
     <div class="align-center-box">
         <label for="text">第二步：输入需要打水印的文字</label>
-        <input style="flex:1;margin-bottom:0" type="text" id="text" placeholder="请输入文字" autocomplete="off">
+        <input style="flex:1;margin-bottom:0" 
+               type="text" 
+               id="text" 
+               placeholder="请输入文字" 
+               value="版权所有 侵权必究"
+               spellcheck="false"
+               autocomplete="off">
+    </div>
+
+    <div class="align-center-box">
+        <label>水印布局设置</label>
+        <div style="flex:1;display:flex;flex-wrap:wrap;gap:20px;">
+            <div>
+                <label for="watermarkPattern">布局方式</label>
+                <select id="watermarkPattern" style="padding:8px;border-radius:4px;border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-color);">
+                    <option value="tile">平铺模式</option>
+                    <option value="single">单个水印</option>
+                    <option value="custom">自定义数量</option>
+                </select>
+            </div>
+            
+            <div id="customPatternControls" style="display:none;">
+                <label for="watermarkCount">水印数量</label>
+                <input type="number" id="watermarkCount" min="1" max="100" value="1" style="width:80px;padding:8px;border-radius:4px;border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-color);">
+            </div>
+            
+            <div id="positionControls" style="display:none;">
+                <label for="watermarkPosition">位置</label>
+                <select id="watermarkPosition" style="padding:8px;border-radius:4px;border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-color);">
+                    <option value="center">居中</option>
+                    <option value="top-left">左上角</option>
+                    <option value="top-right">右上角</option>
+                    <option value="bottom-left">左下角</option>
+                    <option value="bottom-right">右下角</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="align-center-box">
+        <label>字体与样式</label>
+        <div style="flex:1;display:flex;align-items:center;gap:10px">
+            <div class="font-select-wrapper" style="width:200px;position:relative">
+                <select id="fontFamily" style="width:100%;padding:8px 24px 8px 8px;border-radius:4px;border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-color);appearance:none;cursor:pointer">
+                    <option value="黑体">黑体</option>
+                    <option value="宋体">宋体</option>
+                    <option value="仿宋">仿宋</option>
+                    <option value="楷体">楷体</option>
+                    <option value="隶书">隶书</option>
+                    <option value="幼圆">幼圆</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Helvetica">Helvetica</option>
+                    <option value="Tahoma">Tahoma</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="TimesNewRoman">Times New Roman</option>
+                </select>
+                <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--secondary-text)">▼</span>
+            </div>
+            
+            <div class="style-buttons" style="width:80px;display:flex;gap:1px;background:var(--border-color);border-radius:4px;padding:1px">
+                <button id="boldToggle" class="style-btn" onclick="toggleFontStyle('bold')" style="flex:1;font-weight:bold;border-radius:3px 0 0 3px">B</button>
+                <button id="italicToggle" class="style-btn" onclick="toggleFontStyle('italic')" style="flex:1;font-style:italic;border-radius:0 3px 3px 0">I</button>
+            </div>
+            
+            <div style="flex:1"></div>
+        </div>
     </div>
 
     <p class="align-center-box">
@@ -101,7 +119,7 @@
         <input style="flex:1;margin-right:30px" type="color" id="color" pattern="#[0-9A-Fa-f]{6}" autocomplete="off"
             value="#ffffff"><br>
 
-        <label for="alpha">透明度</label>
+        <label for="alpha">不透明度</label>
         <input style="flex:1;margin-right:30px" type="range" id="alpha" min="0" max="1" step="0.05" autocomplete="off"
             value="0.3"><br>
 
@@ -112,181 +130,33 @@
         <label for="size">字号</label>
         <input style="flex:1;margin-right:30px" type="range" id="size" min="0.5" max="3" step="0.05" autocomplete="off"
             value="0.8">
+
+        <label for="rotate">旋转角度</label>
+        <input style="flex:1;margin-right:30px" type="range" id="rotate" 
+               min="-90" max="90" step="3" 
+               autocomplete="off" value="45">
+        <span id="rotateValue">45°</span>
     </p>
 
     <label for="text">第三步：点击图片进行单个图片下载</label>
-    <button onclick="downloadAllPic()">下载全部</button>
+    <div class="button-group">
+        <button class="btn btn-primary" onclick="downloadAll()">
+            <span class="btn-icon">⬇️</span>
+            <span>下载全部</span>
+        </button>
+        <button class="btn btn-danger" onclick="deleteAll()">
+            <span class="btn-icon">🗑️</span>
+            <span>删除全部</span>
+        </button>
+    </div>
     <p id="graph"></p>
+    <footer style="text-align: center; margin-top: 30px; padding: 20px 0; color: #666; font-size: 14px; border-top: 1px solid #eee;">
+        <p>© 2024 离线照片水印打码工具 | 作者：<a href="https://github.com/cuijianzhuang" style="color: #3498db; text-decoration: none;">cuijianzhuang</a></p>
+        <p style="margin-top: 5px; font-size: 13px;">本工具完全离线运行，保护您的隐私安全</p>
+    </footer>
 </div>
-<script>
-    var $, canvas, dataURItoBlob, graph, image, configInputSetting, inputItems,
-        readFile;
-
-    $ = function (sel) {
-        return document.querySelector(sel);
-    };
-
-    inputItems = ['text', 'color', 'alpha', 'space', 'size'];
-
-    configInputSetting = {}; // 保存所有水印
-    allCanvas = []; // 保存所有的canvas
-
-    image = $('#image');
-
-    graph = $('#graph');
-
-    dataURItoBlob = function (dataURI) {
-        var arr, binStr, i, len, _i, _ref;
-        binStr = atob((dataURI.split(','))[1]);
-        len = binStr.length;
-        arr = new Uint8Array(len);
-        for (i = _i = 0, _ref = len - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-            arr[i] = binStr.charCodeAt(i);
-        }
-        return new Blob([arr], {
-            type: 'image/png'
-        });
-    };
-
-    const generateFileName = (fileName) => {
-        var d, pad;
-        pad = function (n) {
-            if (n < 10) {
-                return '0' + n;
-            } else {
-                return n;
-            }
-        };
-        d = new Date;
-        const timeStr = '' + d.getFullYear() + '-' + (pad(d.getMonth() + 1)) + '-' + (pad(d.getDate())) + ' ' + (
-            pad(d
-                .getHours())) + (pad(d.getMinutes())) + (pad(d.getSeconds()))
-        return fileName + '_' + timeStr + '.png';
-    };
-    const redrawCanvas = (canvas, img) => {
-        // 重新设置canvas的宽高，会清空画布
-        var w = canvas.width;
-        var h = canvas.height;
-        canvas.width = w;
-        canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0);
-    };
-
-    const downloadCanvasAsImage = (canvas, fileName) => {
-        var blob, imageData, link;
-        link = document.createElement('a');
-        link.download = generateFileName(fileName);
-        imageData = canvas.toDataURL('image/png');
-        blob = dataURItoBlob(imageData);
-        link.href = URL.createObjectURL(blob);
-        graph.appendChild(link);
-        return setTimeout(function () {
-            link.click();
-            return graph.removeChild(link);
-        }, 10);
-    }
-    const downloadAllPic = async () => {
-        allCanvas.forEach(({
-            canvas,
-            img,
-            fileName
-        }) => {
-            downloadCanvasAsImage(canvas, fileName);
-        })
-    }
-    readFile = function (file) {
-        var fileReader;
-        if (file == null) {
-            return;
-        }
-        fileReader = new FileReader;
-        fileReader.onload = function () {
-            var img;
-            img = new Image;
-            img.onload = function () {
-                var ctx;
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-
-                allCanvas.push({
-                    img: img,
-                    canvas: canvas,
-                    fileName: file.name
-                });
-
-                drawText(canvas, img);
-                graph.appendChild(canvas);
-
-                return canvas.addEventListener('click', () => downloadCanvasAsImage(canvas, file.name));
-            };
-            return img.src = fileReader.result;
-        };
-        return fileReader.readAsDataURL(file);
-    };
-
-    const makeStyle = () => {
-        var match;
-        match = configInputSetting.color.value.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
-        return 'rgba(' + (parseInt(match[1], 16)) + ',' + (parseInt(match[2], 16)) + ',' + (parseInt(match[3],
-            16)) + ',' + configInputSetting.alpha.value + ')';
-    };
-
-    const drawText = (canvas, img) => {
-        redrawCanvas(canvas, img);
-        var i, j, margin, step, textSize, width, x, y, _i, _j, textCtx;
-        if (canvas == null) {
-            return;
-        }
-
-        textSize = configInputSetting.size.value * Math.max(15, (Math.min(canvas.width, canvas.height)) / 25);
-        textCtx = canvas.getContext('2d');
-        //!TODO 倾斜角度 
-        textCtx.rotate(45 * Math.PI / 180);
-        textCtx.fillStyle = makeStyle();
-        textCtx.font = 'bold ' + textSize +
-            'px -apple-system,"Helvetica Neue",Helvetica,Arial,"PingFang SC","Hiragino Sans GB","WenQuanYi Micro Hei",sans-serif';
-        width = (textCtx.measureText(configInputSetting.text.value)).width;
-        step = Math.sqrt((Math.pow(canvas.width, 2)) + (Math.pow(canvas.height, 2)));
-        margin = (textCtx.measureText('啊')).width;
-        x = Math.ceil(step / (width + margin));
-        y = Math.ceil((step / (configInputSetting.space.value * textSize)) / 2);
-
-        for (i = _i = 0; 0 <= x ? _i <= x : _i >= x; i = 0 <= x ? ++_i : --_i) {
-            for (j = _j = -y; - y <= y ? _j <= y : _j >= y; j = -y <= y ? ++_j : --_j) {
-                textCtx.fillText(configInputSetting.text.value, (width + margin) * i, configInputSetting.space
-                    .value * textSize * j);
-            }
-        }
-    };
-
-    image.addEventListener('change', function () {
-        // 处理批量图片
-        const batchFileHandler = function (file) {
-            const type = file.type;
-            if (!['image/png', 'image/jpeg', 'image/gif'].includes(type)) {
-                return alert('仅支持 png, jpg, gif 图片格式');
-            }
-            readFile(file);
-        };
-        [...this.files].forEach(batchFileHandler);
-    });
-
-    inputItems.forEach(function (item) {
-        var el;
-        el = $('#' + item);
-        configInputSetting[item] = el;
-        return el.addEventListener('input', () => {
-            allCanvas.forEach(({
-                canvas,
-                img
-            }) => {
-                drawText(canvas, img);
-            });
-        });
-    });
-</script>
+<div id="previewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+    <img id="previewImage" style="max-width:90%; max-height:90%; object-fit:contain; cursor:zoom-out;" alt="previewImage">
+</div>
 
 </html>

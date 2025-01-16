@@ -1,0 +1,1440 @@
+
+#container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+#graph {
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  margin-top: 20px;
+}
+
+h1 {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+  font-size: 28px;
+}
+
+article {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+article a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+article a:hover {
+  text-decoration: underline;
+}
+
+.align-center-box {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+label {
+  color: #2c3e50;
+  font-size: 16px;
+  margin-right: 15px;
+  font-weight: 500;
+}
+
+input[type="file"] {
+  padding: 8px;
+  background: #fff;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+input#text {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 15px;
+}
+
+input[type=range] {
+  width: 200px;
+  height: 6px;
+  border-radius: 3px;
+}
+
+canvas {
+  width: 100%;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+canvas:hover {
+  border-color: #3498db;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+button {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-left: 10px;
+}
+
+button:hover {
+  background: #2980b9;
+}
+
+.image-container {
+  position: relative;
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  draggable: true;
+  cursor: move;
+}
+
+.image-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.image-container canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0;
+  border: 1px solid #eee;
+}
+
+.image-info {
+  padding: 10px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.image-info span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.download-btn {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.download-btn:hover {
+  background: #2980b9;
+}
+
+.image-container canvas {
+  cursor: zoom-in;
+  transition: transform 0.2s;
+}
+
+.image-container canvas:hover {
+  transform: scale(1.02);
+}
+
+#previewModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  will-change: opacity, transform;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+
+#previewModal.active {
+  opacity: 1;
+}
+
+#previewImage {
+  max-width: 95%;
+  max-height: 95%;
+  object-fit: contain;
+  transform: scale(0.95);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, filter;
+  cursor: zoom-out;
+}
+
+#previewModal.active #previewImage {
+  transform: scale(1);
+}
+
+/* 添加模糊效果过渡 */
+#previewImage.blur {
+  filter: blur(10px);
+  transform: scale(0.98);
+}
+
+/* 优化加载指示器 */
+#previewModal::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+#previewModal.loading::before {
+  opacity: 1;
+}
+
+/* 添加进度条样式 */
+.preview-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.preview-progress-inner {
+  width: 100%;
+  height: 100%;
+  background: var(--button-primary);
+  transform-origin: left;
+}
+
+/* 深色模式适配 */
+[data-theme="dark"] #previewModal::before {
+  border-color: rgba(0, 0, 0, 0.2);
+  border-top-color: var(--text-color);
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  #previewImage {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  #previewModal {
+    padding: 0;
+  }
+}
+
+/* 优化动画性能 */
+@media (prefers-reduced-motion: reduce) {
+  #previewImage,
+  #previewModal {
+    transition: none;
+  }
+}
+
+.delete-btn {
+  background: #e74c3c;
+}
+
+.delete-btn:hover {
+  background: #c0392b;
+}
+
+/* 添加拖拽相关的样式 */
+.drag-area {
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.drag-area.dragover {
+  border-color: #3498db;
+  background: #ebf5fb;
+}
+
+.drag-area::after {
+  content: '拖拽图片到此处上传';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  color: #666;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.drag-area.empty::after {
+  opacity: 1;
+}
+
+#graph:empty {
+  min-height: 200px;
+}
+
+.upload-container {
+  flex: 1;
+}
+
+.upload-box {
+  position: relative;
+  min-height: 120px;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.upload-box:hover {
+  border-color: #3498db;
+  background: #ebf5fb;
+}
+
+.upload-box input[type="file"] {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-hint {
+  text-align: center;
+  pointer-events: none;
+}
+
+.upload-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.upload-tip {
+  font-size: 12px;
+  color: #999;
+  margin-top: 5px;
+}
+
+.upload-progress {
+  margin-top: 10px;
+  display: none;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.progress-bar {
+  height: 4px;
+  background: var(--progress-bg);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-inner {
+  height: 100%;
+  background: var(--button-primary);
+  width: 0;
+  transition: all 0.3s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: var(--secondary-text);
+  text-align: center;
+  margin-top: 5px;
+}
+
+.dragover {
+  border-color: #3498db;
+  background: #ebf5fb;
+  transform: scale(1.02);
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.delete-all-btn {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.delete-all-btn:hover {
+  background: #c0392b;
+}
+
+/* 添加深色主题样式 */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #2c3e50;
+  --container-bg: #fff;
+  --border-color: #ddd;
+  --box-bg: #f8f9fa;
+  --shadow-color: rgba(0,0,0,0.1);
+  --link-color: #3498db;
+  --secondary-text: #666;
+  --upload-border: #ddd;
+  --upload-hover-bg: #ebf5fb;
+  --progress-bg: #eee;
+  --button-primary: #3498db;
+  --button-hover: #2980b9;
+  --button-delete: #e74c3c;
+  --button-delete-hover: #c0392b;
+  --input-bg: #ffffff;
+  --input-border: #ddd;
+  --input-color: #2c3e50;
+  --range-bg: #ddd;
+  --range-active: #3498db;
+  --drag-border: #ddd;
+  --drag-hover-bg: #ebf5fb;
+  --canvas-border: #ddd;
+}
+
+[data-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --text-color: #e0e0e0;
+  --container-bg: #2d2d2d;
+  --border-color: #404040;
+  --box-bg: #333333;
+  --shadow-color: rgba(0,0,0,0.3);
+  --link-color: #5dade2;
+  --secondary-text: #999;
+  --upload-border: #404040;
+  --upload-hover-bg: #3d3d3d;
+  --progress-bg: #404040;
+  --button-primary: #2980b9;
+  --button-hover: #3498db;
+  --button-delete: #c0392b;
+  --button-delete-hover: #e74c3c;
+  --input-bg: #333333;
+  --input-border: #404040;
+  --input-color: #e0e0e0;
+  --range-bg: #404040;
+  --range-active: #2980b9;
+  --drag-border: #404040;
+  --drag-hover-bg: #3d3d3d;
+  --canvas-border: #404040;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease;
+}
+
+#container {
+  background: var(--container-bg);
+  box-shadow: 0 2px 12px var(--shadow-color);
+}
+
+.align-center-box {
+  background: var(--box-bg);
+}
+
+input[type="file"],
+input[type="text"] {
+  background: var(--container-bg);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.image-container {
+  background: var(--box-bg);
+}
+
+/* 主题切换按钮样式 */
+.theme-switch {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  background: var(--container-bg);
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.theme-switch:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.theme-icon {
+  font-size: 18px;
+}
+
+article {
+  color: var(--secondary-text);
+}
+
+article a {
+  color: var(--link-color);
+}
+
+.upload-box {
+  border-color: var(--upload-border);
+  background: var(--box-bg);
+}
+
+.upload-box:hover {
+  border-color: var(--link-color);
+  background: var(--upload-hover-bg);
+}
+
+.upload-tip {
+  color: var(--secondary-text);
+}
+
+.progress-bar {
+  background: var(--progress-bg);
+}
+
+.progress-inner {
+  background: var(--button-primary);
+}
+
+.progress-text {
+  color: var(--secondary-text);
+}
+
+button {
+  background: var(--button-primary);
+  color: white;
+}
+
+button:hover {
+  background: var(--button-hover);
+}
+
+.delete-btn {
+  background: var(--button-delete);
+}
+
+.delete-btn:hover {
+  background: var(--button-delete-hover);
+}
+
+.delete-all-btn {
+  background: var(--button-delete);
+}
+
+.delete-all-btn:hover {
+  background: var(--button-delete-hover);
+}
+
+.image-info {
+  color: var(--secondary-text);
+}
+
+.drag-area::after {
+  color: var(--secondary-text);
+}
+
+.dragover {
+  border-color: var(--link-color);
+  background: var(--upload-hover-bg);
+}
+
+canvas {
+  border-color: var(--border-color);
+}
+
+canvas:hover {
+  border-color: var(--link-color);
+}
+
+footer {
+  color: var(--secondary-text);
+  border-top-color: var(--border-color);
+}
+
+footer a {
+  color: var(--link-color);
+}
+
+#previewModal {
+  background: rgba(0,0,0,0.9);
+}
+
+/* 添加新的样式规则 */
+input[type="color"] {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+}
+
+input[type="range"] {
+  background: var(--range-bg);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  background: var(--range-active);
+}
+
+input[type="range"]::-moz-range-thumb {
+  background: var(--range-active);
+}
+
+.drag-area {
+  border-color: var(--drag-border);
+  background: var(--box-bg);
+}
+
+.drag-area.dragover {
+  border-color: var(--link-color);
+  background: var(--drag-hover-bg);
+}
+
+canvas {
+  border: 2px dashed var(--canvas-border);
+}
+
+h1 {
+  color: var(--text-color);
+}
+
+label {
+  color: var(--text-color);
+}
+
+.upload-hint p {
+  color: var(--text-color);
+}
+
+.theme-switch {
+  color: var(--text-color);
+}
+
+.theme-text {
+  color: var(--text-color);
+}
+
+/* 修改预览模态框样式 */
+#previewModal {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+#previewImage {
+  background: var(--container-bg);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+/* 调整滚动条样式 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--box-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-text);
+}
+
+/* 调整选中文本的颜色 */
+::selection {
+  background: var(--button-primary);
+  color: white;
+}
+
+/* 移动端基础样式优化 */
+@media (max-width: 768px) {
+  #container {
+    margin: 10px;
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 22px;
+    margin-bottom: 15px;
+  }
+
+  article {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .align-center-box {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+  }
+
+  label {
+    margin-bottom: 8px;
+    margin-right: 0;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .button-group button {
+    width: 100%;
+    margin: 5px 0;
+  }
+
+  /* 调整主题切换按钮位置 */
+  .theme-switch {
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  /* 优化图片网格布局 */
+  #graph {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  /* 调整上传框大小 */
+  .upload-box {
+    min-height: 100px;
+  }
+
+  .upload-icon {
+    font-size: 24px;
+  }
+
+  /* 优化控制条布局 */
+  input[type="range"] {
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  /* 调整预览模态框 */
+  #previewModal {
+    padding: 10px;
+  }
+
+  #previewImage {
+    max-width: 100%;
+    max-height: 90vh;
+  }
+}
+
+/* 添加触摸设备优化 */
+@media (hover: none) {
+  .image-container canvas {
+    cursor: default;
+  }
+
+  .upload-box:hover {
+    transform: none;
+  }
+
+  button:active {
+    transform: scale(0.98);
+  }
+
+  .theme-switch:active {
+    transform: scale(0.95);
+  }
+}
+
+/* 优化触摸操作区域 */
+button,
+input[type="file"],
+.theme-switch {
+  min-height: 44px;
+}
+
+/* 防止iOS缩放 */
+@supports (-webkit-touch-callout: none) {
+  input[type="color"],
+  input[type="range"] {
+    font-size: 16px;
+  }
+}
+
+/* 基础按钮样式优化 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 6px;
+  min-height: 36px;
+  min-width: 80px;
+  color: white;
+}
+
+/* 主要按钮 */
+.btn-primary {
+  background: var(--button-primary);
+  box-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);
+}
+
+.btn-primary:hover {
+  background: var(--button-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+}
+
+/* 危险按钮 */
+.btn-danger {
+  background: var(--button-delete);
+  box-shadow: 0 2px 4px rgba(231, 76, 60, 0.2);
+}
+
+.btn-danger:hover {
+  background: var(--button-delete-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+}
+
+/* 按钮图标 */
+.btn-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* 按钮组样式 */
+.button-group {
+  display: flex;
+  gap: 12px;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+/* 小型按钮 */
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+  min-height: 32px;
+  min-width: 60px;
+}
+
+/* 按钮加载状态 */
+.btn.loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.btn.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: button-loading 0.6s linear infinite;
+}
+
+@keyframes button-loading {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .button-group {
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) {
+  .btn:active {
+    transform: scale(0.98);
+  }
+}
+
+.style-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  background: var(--input-bg);
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.style-btn:hover {
+  background: var(--box-bg);
+}
+
+.style-btn.active {
+  background: var(--button-primary);
+  color: white;
+}
+
+.font-select-wrapper select:hover {
+  border-color: var(--button-primary);
+}
+
+.font-select-wrapper select:focus {
+  border-color: var(--button-primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* 复制按钮样式 */
+.copy-btn {
+  background: var(--button-primary);
+}
+
+.copy-btn:hover {
+  background: var(--button-hover);
+}
+
+/* Toast提示框样式 */
+#toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  z-index: 1000;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+#toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* 深色模式适配 */
+[data-theme="dark"] #toast {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-color);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  #toast {
+    width: 80%;
+    text-align: center;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+}
+
+/* 添加文件名容器样式 */
+.file-name {
+  font-size: 13px;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+/* 修改按钮组样式 */
+.button-group-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+.button-group-container .download-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 6px;
+  font-size: 12px;
+}
+
+/* 添加下载进度条样式 */
+.download-progress {
+  position: relative;
+  padding: 20px;
+  border-radius: 8px;
+  background: var(--box-bg);
+  margin-top: 15px;
+  display: none;
+  opacity: 1;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.progress-container {
+  flex: 1;
+  margin-right: 90px; /* 减小按钮预留空间 */
+  width: calc(100% - 90px); /* 确保固定宽度 */
+}
+
+.progress-bar {
+  height: 6px;
+  background: var(--progress-bg);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.progress-inner {
+  height: 100%;
+  background: var(--button-primary);
+  width: 0;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 13px;
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+.progress-eta {
+  font-size: 12px;
+  color: var(--secondary-text);
+}
+
+.progress-actions {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 80px; /* 固定按钮容器宽度 */
+}
+
+.cancel-btn,
+.retry-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%; /* 按钮填满容器 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.cancel-btn {
+  background: var(--button-delete);
+  color: white;
+}
+
+.retry-btn {
+  background: var(--button-primary);
+  color: white;
+  display: none;
+}
+
+.cancel-btn:hover,
+.retry-btn:hover {
+  transform: scale(1.05);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .download-progress {
+    padding: 15px;
+  }
+
+  .progress-container {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .progress-actions {
+    position: static;
+    transform: none;
+    display: flex;
+    justify-content: stretch;
+    gap: 8px;
+    margin-top: 12px;
+    width: 100%;
+  }
+
+  .cancel-btn,
+  .retry-btn {
+    flex: 1;
+    width: 100%;
+    padding: 8px;
+  }
+}
+
+.preview-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 20px 15px;
+  cursor: pointer;
+  font-size: 20px;
+  opacity: 0;
+  transition: opacity 0.3s, background 0.3s;
+}
+
+#previewModal:hover .preview-nav {
+  opacity: 0.7;
+}
+
+.preview-nav:hover {
+  opacity: 1 !important;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.preview-nav.prev {
+  left: 20px;
+  border-radius: 0 3px 3px 0;
+}
+
+.preview-nav.next {
+  right: 20px;
+  border-radius: 3px 0 0 3px;
+}
+
+@media (max-width: 768px) {
+  .preview-nav {
+    padding: 15px 10px;
+    font-size: 16px;
+  }
+}
+
+.template-buttons {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.template-btn {
+  background: var(--box-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.template-btn:hover {
+  background: var(--button-primary);
+  color: white;
+  border-color: var(--button-primary);
+}
+
+@media (max-width: 768px) {
+  .template-buttons {
+    margin-top: 8px;
+    gap: 6px;
+  }
+
+  .template-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  template-buttons {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .template-btn {
+    background: var(--box-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .template-btn:hover {
+    background: var(--button-primary);
+    color: white;
+    border-color: var(--button-primary);
+  }
+
+  @media (max-width: 768px) {
+    .template-buttons {
+      margin-top: 8px;
+      gap: 6px;
+    }
+
+    .template-btn {
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+  }
+
+  .download-progress {
+    position: relative;
+    padding: 20px;
+    border-radius: 8px;
+    background: var(--box-bg);
+    margin-top: 15px;
+    display: none;
+    opacity: 1;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .progress-container {
+    flex: 1;
+    margin-right: 90px; /* 减小按钮预留空间 */
+    width: calc(100% - 90px); /* 确保固定宽度 */
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: var(--progress-bg);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    width: 100%;
+  }
+
+  .progress-inner {
+    height: 100%;
+    background: var(--button-primary);
+    width: 0;
+    transition: width 0.3s ease;
+  }
+
+  .progress-text {
+    font-size: 13px;
+    color: var(--text-color);
+    margin-bottom: 4px;
+  }
+
+  .progress-eta {
+    font-size: 12px;
+    color: var(--secondary-text);
+  }
+
+  .progress-actions {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 80px; /* 固定按钮容器宽度 */
+  }
+
+  .cancel-btn,
+  .retry-btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%; /* 按钮填满容器 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .cancel-btn {
+    background: var(--button-delete);
+    color: white;
+  }
+
+  .retry-btn {
+    background: var(--button-primary);
+    color: white;
+    display: none;
+  }
+
+  .cancel-btn:hover,
+  .retry-btn:hover {
+    transform: scale(1.05);
+  }
+
+  /* 移动端适配 */
+  @media (max-width: 768px) {
+    .download-progress {
+      padding: 15px;
+    }
+
+    .progress-container {
+      margin-right: 0;
+      margin-bottom: 10px;
+    }
+
+    .progress-actions {
+      position: static;
+      transform: none;
+      display: flex;
+      justify-content: stretch;
+      gap: 8px;
+      margin-top: 12px;
+      width: 100%;
+    }
+
+    .cancel-btn,
+    .retry-btn {
+      flex: 1;
+      width: 100%;
+      padding: 8px;
+    }
+  }
+
+  .preview-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 20px 15px;
+    cursor: pointer;
+    font-size: 20px;
+    opacity: 0;
+    transition: opacity 0.3s, background 0.3s;
+  }
+
+  #previewModal:hover .preview-nav {
+    opacity: 0.7;
+  }
+
+  .preview-nav:hover {
+    opacity: 1 !important;
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .preview-nav.prev {
+    left: 20px;
+    border-radius: 0 3px 3px 0;
+  }
+
+  .preview-nav.next {
+    right: 20px;
+    border-radius: 3px 0 0 3px;
+  }
+
+  @media (max-width: 768px) {
+    .preview-nav {
+      padding: 15px 10px;
+      font-size: 16px;
+    }
+  }
+
+  /* 基础样式 */
+  :root {
+    --bg-color: #ffffff;
+    --text-color: #2c3e50;
+    --container-bg: #fff;
+    /* ... 其他变量定义 ... */
+  }
+
+  /* 深色主题 */
+  [data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    /* ... 其他深色主题变量 ... */
+  }
+
+  /* 容器样式 */
+  #container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    background: var(--container-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 12px var(--shadow-color);
+    transition: all 0.3s ease;
+  }
+}
